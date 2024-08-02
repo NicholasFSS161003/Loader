@@ -11,14 +11,15 @@ void setup() {
 }
 
 void loop() {
-  loader.update();
-  if (digitalRead(button) == 0 && flag == 0) {
-     loader.load(60, 2, 30);
-    flag = 1;
-  } else if (digitalRead(button) == 1 && flag == 1) {
-      flag = 0;
-    }
-  Serial.print("Loader status: ");
+  if(digitalRead(button)==0 && flag ==0){
+  loader.update(60,2,30);
+   flag = 1;
+  }else if(digitalRead(button)==1 && flag ==1){
+    flag = 0;
+  }
+
+  loader.load(90,2,30);
   
+  Serial.print("Loader status: ");
   Serial.println(loader.isloaded());
 }
