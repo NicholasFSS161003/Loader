@@ -6,6 +6,7 @@ LoaderV1 loader(9, 2, 100);
 bool flag = 0;
 
 void setup() {
+  Serial.begin(9600);
   pinMode(button, INPUT_PULLUP);
   digitalWrite(button, HIGH);
 }
