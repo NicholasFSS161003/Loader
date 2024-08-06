@@ -18,8 +18,8 @@ private:
   double _frontAng = _edge_load_dist;
   unsigned long _currentDebounceTime;
 public:
-  LoaderV1(uint8_t servo_pin, uint8_t buttonPin, uint8_t init_value);
-  void load(uint8_t edge_load_dist,double frontVal,double rdu,uint8_t rdu_dist);
+  LoaderV1(uint8_t servo_pin, uint8_t buttonPin, uint8_t init_value,uint8_t edge_load_dist,double frontVal,double rdu,uint8_t rdu_dist);
+  void load();
   bool isloaded();
   void setServo(uint8_t angle);
   void reset();
