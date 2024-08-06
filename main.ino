@@ -12,17 +12,14 @@ void setup() {
   pinMode(button, INPUT_PULLUP);
   digitalWrite(button, HIGH);
 }
-
+//130 25
 void loop() {
-    loader.load(90,2,30);
- if(digitalRead(button)==0 && flag ==0){
-  loader.update(60,2,30);
-
-   flag = 1;
-  }else if(digitalRead(button)==1 && flag ==1){
-    flag = 0;
+  loader.update();
+  if (digitalRead(button) == 0 ) {
+    loader.load(70, 2, 66, 0.3);
+  } else if (digitalRead(button) == 1) {
+    
   }
-    Serial.print("Loader status1:  ");
-  Serial.println(loader.isloaded());
-
+  // Serial.print("Loader status1:  ");
+  // Serial.println(loader.isloaded());
 }
