@@ -6,9 +6,9 @@ LoaderV1::LoaderV1(uint8_t servo_pin, uint8_t buttonPin, uint8_t init_value, uin
 }
 
 void LoaderV1::load() {
-  _currentDebounceTime = millis();
-
+   _currentDebounceTime = millis();
   _isloaded = 0;
+  _frontAng = _edge_load_dist;
 }
 
 bool LoaderV1::isloaded() {
@@ -21,28 +21,50 @@ void LoaderV1::reset() {
 }
 
 void LoaderV1::update() {
-  if (_isloaded == 0) {
+ if (_isloaded == 0) {
+
+    // Serial.print("HitterButton State: ");
+    // Serial.println(digitalRead(_buttonPin));
+
     if (digitalRead(_buttonPin) == 0 && _frontAng < 130 && _frontAng > 30) {
+      if(_frontAng > _edge_load_dist){
+        _frontAng -= 1;
+      }else {
+        _frontAng -= _frontVal;
+      }
       setServo(_frontAng);  //going front
-      _frontAng -= _frontVal;
+    
+      Serial.print("Moving Front: ");
+      Serial.println(_frontAng);
+      // Serial.print(_frontAng);
+      //Serial.print("\t");
+      //Serial.println("forward");
     } else if (digitalRead(_buttonPin) == 1) {
-      if (millis() - _currentDebounceTime >= 65) {
-        _LoadFlag = 0;
+      Serial.println("Hitter Button Hit!");
+      if (_lastDebounceTime - _currentDebounceTime >= 5) {
+
         setServo(_rdu_dist);  //going back
         _rdu_dist -= _rdu;
+
         if (_rdu_dist <= 30)
           _rdu_dist = 30;
+
         Serial.print("update");
         Serial.print("\t");
+        Serial.println(_rdu_dist);
 
-        _isloaded = 1;
+         _lastDebounceTime = _currentDebounceTime;
+         _isloaded = 1;
       }
     }
-  }  //Serial.println(digitalRead(_buttonPin));
+ }
+  // Serial.print(_currentDebounceTime);
+  // Serial.print("\t");
+  // Serial.println(millis());  // Serial.println(digitalRead(_buttonPin));
 }
 
 void LoaderV1::setServo(uint8_t angle) {
-  if (angle < 25) {
+  if (angle < 30) {
     angle = 30;
   }
   if (angle > 130) {
