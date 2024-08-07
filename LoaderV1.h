@@ -16,7 +16,7 @@ private:
   double _rdu,_rdu2,_change;  
   double _frontVal;
   double _frontAng = _edge_load_dist;
-
+  unsigned long _LastDelay = millis(),_CurrentDelay;
   unsigned long _currentDebounceTime = 0,_lastDebounceTime = millis();
 
 public:
