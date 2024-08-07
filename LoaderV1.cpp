@@ -6,7 +6,7 @@ LoaderV1::LoaderV1(uint8_t servo_pin, uint8_t buttonPin, uint8_t init_value, uin
 }
 
 void LoaderV1::load() {
-   _currentDebounceTime = millis();
+  _currentDebounceTime = millis();
   _isloaded = 0;
   _frontAng = _edge_load_dist;
 }
@@ -21,19 +21,30 @@ void LoaderV1::reset() {
 }
 
 void LoaderV1::update() {
- if (_isloaded == 0) {
+  if (_isloaded == 0) {
 
     // Serial.print("HitterButton State: ");
     // Serial.println(digitalRead(_buttonPin));
 
     if (digitalRead(_buttonPin) == 0 && _frontAng < 130 && _frontAng > 30) {
-      if(_frontAng > _edge_load_dist){
+
+      if (_frontAng > _edge_load_dist) {
+        //From init_dist to selected distance (speed up to not waste time)
+        Serial.print("Stage 1 \t");
         _frontAng -= 1;
-      }else {
-        _frontAng -= _frontVal;
+      } else {
+        //From selected distance to the shooter
+        _CurrentDelay = millis();
+        Serial.println(_CurrentDelay);
+        Serial.println(_LastDelay);
+        if (_CurrentDelay - _LastDelay >= 50) {
+          Serial.print("Stage 2 \t");
+          _frontAng -= _frontVal;
+          _LastDelay = _CurrentDelay;
+        }
       }
       setServo(_frontAng);  //going front
-    
+
       Serial.print("Moving Front: ");
       Serial.println(_frontAng);
       // Serial.print(_frontAng);
@@ -53,11 +64,11 @@ void LoaderV1::update() {
         Serial.print("\t");
         Serial.println(_rdu_dist);
 
-         _lastDebounceTime = _currentDebounceTime;
-         _isloaded = 1;
+        _lastDebounceTime = _currentDebounceTime;
+        _isloaded = 1;
       }
     }
- }
+  }
   // Serial.print(_currentDebounceTime);
   // Serial.print("\t");
   // Serial.println(millis());  // Serial.println(digitalRead(_buttonPin));
