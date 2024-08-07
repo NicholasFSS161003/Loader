@@ -1,8 +1,19 @@
 #include "LoaderV1.h"
-LoaderV1::LoaderV1(uint8_t servo_pin, uint8_t buttonPin, uint8_t init_value, uint8_t edge_load_dist, double frontVal, double rdu, uint8_t rdu_dist)
-  : _servo_pin(servo_pin), _buttonPin(buttonPin), _init_value(init_value), _edge_load_dist(edge_load_dist), _rdu(rdu), _rdu_dist(rdu_dist), _frontVal(frontVal), _frontAng(edge_load_dist) {
+LoaderV1::LoaderV1(uint8_t servo_pin, uint8_t buttonPin)
+  : _servo_pin(servo_pin), _buttonPin(buttonPin) {
   pinMode(_buttonPin, INPUT_PULLUP);
+  pinMode(_servo_pin, OUTPUT);
+  attach(_servo_pin);
   setServo(_init_value);
+}
+
+void LoaderV1::setInitAng(uint8_t init_value, uint8_t edge_load_dist, double frontVal, double rdu, uint8_t rdu_dist) {  //Initializing all values of variables
+  _init_value = init_value;
+  _edge_load_dist = edge_load_dist;
+  _rdu = rdu;
+  _rdu_dist = rdu_dist;
+  _frontVal = frontVal;
+  _frontAng = edge_load_dist;
 }
 
 void LoaderV1::load() {
@@ -12,7 +23,6 @@ void LoaderV1::load() {
 }
 
 bool LoaderV1::isloaded() {
-
   return _isloaded;
 }
 
@@ -23,63 +33,37 @@ void LoaderV1::reset() {
 void LoaderV1::update() {
   if (_isloaded == 0) {
 
-    // Serial.print("HitterButton State: ");
-    // Serial.println(digitalRead(_buttonPin));
+    if (digitalRead(_buttonPin) == 0) { 
 
-    if (digitalRead(_buttonPin) == 0 && _frontAng < 130 && _frontAng > 30) {
-
-      if (_frontAng > _edge_load_dist) {
+      if (_frontAng > _rdu_dist) {
         //From init_dist to selected distance (speed up to not waste time)
-        Serial.print("Stage 1 \t");
         _frontAng -= 1;
       } else {
         //From selected distance to the shooter
         _CurrentDelay = millis();
-        Serial.println(_CurrentDelay);
-        Serial.println(_LastDelay);
         if (_CurrentDelay - _LastDelay >= 50) {
-          Serial.print("Stage 2 \t");
           _frontAng -= _frontVal;
           _LastDelay = _CurrentDelay;
         }
       }
       setServo(_frontAng);  //going front
-
-      Serial.print("Moving Front: ");
-      Serial.println(_frontAng);
-      // Serial.print(_frontAng);
-      //Serial.print("\t");
-      //Serial.println("forward");
     } else if (digitalRead(_buttonPin) == 1) {
-      Serial.println("Hitter Button Hit!");
-      if (_lastDebounceTime - _currentDebounceTime >= 5) {
+      if (_lastDebounceTime - _currentDebounceTime >= 5) {  //Debounce(To prevent the hit button being activated by the shaking)
 
         setServo(_rdu_dist);  //going back
         _rdu_dist -= _rdu;
 
-        if (_rdu_dist <= 30)
+        if (_rdu_dist <= 30)  //set a safe limit
           _rdu_dist = 30;
-
-        Serial.print("update");
-        Serial.print("\t");
-        Serial.println(_rdu_dist);
 
         _lastDebounceTime = _currentDebounceTime;
         _isloaded = 1;
       }
     }
   }
-  // Serial.print(_currentDebounceTime);
-  // Serial.print("\t");
-  // Serial.println(millis());  // Serial.println(digitalRead(_buttonPin));
 }
 
 void LoaderV1::setServo(uint8_t angle) {
-  if (angle < 30) {
-    angle = 30;
-  }
-  if (angle > 130) {
-    angle = 130;
-  }
-  write(angle);  //normal Servo.write
+  angle = constrain(angle, 30, 130);  //safety  limit
+  write(angle);                       //normal Servo.write
 }
